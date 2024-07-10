@@ -1,0 +1,13 @@
+*.java          text diff=java
+*.properties    text
+*.xml           text
+*.ini           text
+*.md            text
+*.txt           text
+*.form          text eol=lf
+
+*.class         binary
+*.jar           binary
+*.png           binary
+*.ico           binary
+*.xcf           binary

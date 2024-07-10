@@ -1,0 +1,5 @@
+/target/
+/.idea/
+/nbactions.xml
+/history.ini
+/dependency-reduced-pom.xml
