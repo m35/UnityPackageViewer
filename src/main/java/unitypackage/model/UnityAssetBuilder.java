@@ -37,6 +37,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
  */
 class UnityAssetBuilder {
 
+    private static final boolean STRICT = false;
+
     /**
      * The directory name, which is also the GUID of the asset.
      */
@@ -149,9 +151,12 @@ class UnityAssetBuilder {
                 asset_meta_guid = findGuidIn_asset_meta_File(tarEntry, tarInputStream);
                 if (!asset_meta_guid.equals(guidBaseDirectory)) {
                     // afaik the directory guid should match the guid in the asset.meta file
-                    throw new RuntimeException("Corrupted .unitypackage: directory guid" +
-                                                       " " + guidBaseDirectory + " != " +
-                                                       "asset.meta guid " + asset_meta_guid);
+                    String s = "Corrupted .unitypackage? directory guid" + " " + guidBaseDirectory + " != " + "asset.meta guid " + asset_meta_guid;
+                    if (STRICT) {
+                        throw new RuntimeException(s);
+                    } else {
+                        System.out.println(s);
+                    }
                 }
                 break;
             case "pathname":
