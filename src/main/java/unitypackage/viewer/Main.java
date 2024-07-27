@@ -18,20 +18,38 @@
 
 package unitypackage.viewer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
+import unitypackage.model.UnityArchiveInputStream;
+import unitypackage.model.UnityAsset;
+import unitypackage.model.UnityPackage;
 import unitypackage.viewer.gui.MainWindow;
+import unitypackage.viewer.gui.UnitypackageFileName;
 
 public class Main {
 
-    public static String VERSION = "(development)";
+    private static final String VERSION_PROPERTY_FILE = "app.properties";
+    public static String DEVELOPMENT_VERSION = "(development)";
+    public static String VERSION = DEVELOPMENT_VERSION;
 
+    private static final String EXTRACT_ALL_COMMAND = "--extract-all";
+
+    /**
+     * Looks for the file {@link #VERSION_PROPERTY_FILE} that should have been filtered
+     * into the build with the application's version. But if not found, will default
+     * to {@link #DEVELOPMENT_VERSION}.
+     */
     private static void initVersion() {
-        String resource = "app.properties";
 
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        try (InputStream propertyStream = classLoader.getResourceAsStream(resource)) {
+        try (InputStream propertyStream = classLoader.getResourceAsStream(VERSION_PROPERTY_FILE)) {
             if (propertyStream != null) {
                 Properties properties = new Properties();
                 properties.load(propertyStream);
@@ -45,14 +63,61 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         initVersion();
+
+        ArrayList<String> argsList = new ArrayList<>(Arrays.asList(args));
+
+        boolean hasExtractAllCommand = false;
+        String fileToOpen = null;
+
+        if (!argsList.isEmpty()) {
+            hasExtractAllCommand = argsList.remove(EXTRACT_ALL_COMMAND);
+            if (!argsList.isEmpty()) {
+                fileToOpen = argsList.get(0);
+            }
+        }
+
+        if (hasExtractAllCommand) {
+            if (fileToOpen == null) {
+                System.out.println(EXTRACT_ALL_COMMAND + " expects a file to extract");
+                System.exit(1);
+            }
+            extractAll(fileToOpen);
+        } else {
+            runGui(fileToOpen);
+        }
+    }
+
+    private static void extractAll(String fileToOpen) throws IOException {
+        File file = new File(fileToOpen);
+        if (!UnitypackageFileName.isUnitypackage(file)) {
+            System.out.println("File \""+fileToOpen+"\" doesn't have a normal unitypackage file name.");
+        }
+
+        UnityPackage unityPackage = new UnityPackage(file);
+        try (UnityArchiveInputStream unityIS = unityPackage.getUnityArchiveInputStream()) {
+            UnityAsset nextAsset;
+            while ((nextAsset = unityIS.getNextEntry()) != null) {
+                Path assetPath = nextAsset.getFullPathAsPath();
+                Path parentDirectory = assetPath.getParent();
+                if (parentDirectory != null) {
+                    Files.createDirectories(parentDirectory);
+                }
+
+                Files.copy(unityIS, assetPath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Extracted " + assetPath);
+            }
+        }
+    }
+
+    private static void runGui(String fileToOpen) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MainWindow frame = new MainWindow(args.length > 0 ? args[0] : null );
+                MainWindow frame = new MainWindow(fileToOpen);
                 frame.setVisible(true);
             }
         });

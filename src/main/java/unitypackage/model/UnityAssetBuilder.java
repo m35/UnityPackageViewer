@@ -102,18 +102,16 @@ class UnityAssetBuilder {
         return _preview;
     }
 
-    public UnityAssetBuilder(String guidBaseDirectory) {
-        this.guidBaseDirectory = guidBaseDirectory;
+    public UnityAssetBuilder(String directoryGuidName) {
+        this.guidBaseDirectory = directoryGuidName;
     }
 
-    public UnityAssetBuilder(TarArchiveEntry tarEntry,
+    public UnityAssetBuilder(String guidBaseDirectory, String fileName, TarArchiveEntry tarEntry,
                              TarArchiveInputStream tarInputStream) throws IOException
     {
-        String rawFilePath = tarEntry.getName();
-        File rawFile = new File(rawFilePath);
-        guidBaseDirectory = rawFile.getParent();
+        this.guidBaseDirectory = guidBaseDirectory;
 
-        addFileFoundInDirectory(tarEntry, tarInputStream);
+        addFileFoundInDirectory(this.guidBaseDirectory, fileName, tarEntry, tarInputStream);
     }
 
     public UnityAsset makeUnityAsset() {
@@ -123,34 +121,28 @@ class UnityAssetBuilder {
     /**
      * Sanity check that only files that belong in this directory are being added.
      */
-    public void assertGuidMatchesDirectoryName(String guid) {
-        if (!guid.equals(guidBaseDirectory)) {
-            throw new IllegalArgumentException("Argument guid " + guid + " != this guid" +
+    public void assertGuidMatchesDirectoryName(String directoryGuidName) {
+        if (!directoryGuidName.equals(guidBaseDirectory)) {
+            throw new IllegalArgumentException("Argument guid " + directoryGuidName + " != this guid" +
                                                        " dir " + guidBaseDirectory);
         }
     }
 
-    public void addFileFoundInDirectory(TarArchiveEntry tarEntry,
+    public void addFileFoundInDirectory(String directoryGuidName, String fileName, TarArchiveEntry tarEntry,
                                         TarArchiveInputStream tarInputStream) throws IOException {
-        String rawFilePath = tarEntry.getName();
-        File rawFile = new File(rawFilePath);
-
-        String directoryGuidName = rawFile.getParent();
 
         assertGuidMatchesDirectoryName(directoryGuidName);
 
-        String rawFileName = rawFile.getName();
-
-        switch (rawFileName) {
+        switch (fileName) {
             case "asset":
                 asset_fileSize = tarEntry.getRealSize();
-                rawPathTo_asset_file = rawFilePath;
+                rawPathTo_asset_file = tarEntry.getName();
                 asset_dateModified = tarEntry.getLastModifiedDate();
                 break;
             case "asset.meta":
                 asset_meta_guid = findGuidIn_asset_meta_File(tarEntry, tarInputStream);
                 if (!asset_meta_guid.equals(guidBaseDirectory)) {
-                    // afaik the directory guid should match the guid in the asset.meta file
+                    // Usually the directory guid matches the guid in the asset.meta file, but not always
                     String s = "Corrupted .unitypackage? directory guid" + " " + guidBaseDirectory + " != " + "asset.meta guid " + asset_meta_guid;
                     if (STRICT) {
                         throw new RuntimeException(s);
@@ -166,7 +158,7 @@ class UnityAssetBuilder {
                 _preview = ImageIO.read(tarInputStream);
                 break;
             default:
-                throw new RuntimeException("File name not recognized " + rawFilePath);
+                throw new RuntimeException("File name not recognized " + tarEntry.getName());
         }
     }
 

@@ -35,18 +35,18 @@ import java.util.stream.Collectors;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import unitypackage.model.UnityAsset;
-import unitypackage.model.UnitypackageReader;
+import unitypackage.model.UnityPackage;
 
 public class UnitypackageGuiModel {
 
-    private File currentUnitypackageFile;
+    private UnityPackage currentUnitypackage;
 
-    public File getCurrentUnitypackageFile() {
-        return currentUnitypackageFile;
+    public File getCurrentUnitypackage() {
+        return currentUnitypackage.getUnitypackageFile();
     }
 
     public void extractFile(UnityAsset asset, Path outputFile) throws IOException {
-        try (InputStream is = UnitypackageReader.getFileStream(asset, currentUnitypackageFile)) {
+        try (InputStream is = currentUnitypackage.getFileStream(asset)) {
             Files.copy(is, outputFile, StandardCopyOption.REPLACE_EXISTING);
         }
     }
@@ -88,10 +88,10 @@ public class UnitypackageGuiModel {
      * @param unitypackagePath Path to the ".unitypackage" file.
      */
     public DefaultTreeModel buildTreeModel(File unitypackagePath) throws IOException {
-        currentUnitypackageFile = unitypackagePath;
 
-        List<UnityAsset> unityAssets = UnitypackageReader.readAssetsList(unitypackagePath);
+        currentUnitypackage = new UnityPackage(unitypackagePath);
 
+        List<UnityAsset> unityAssets = currentUnitypackage.getUnityAssetList();
 
         UnityTreeNode.Directory root = new UnityTreeNode.Directory(Paths.get("(root)"));
 
@@ -142,6 +142,7 @@ public class UnitypackageGuiModel {
 
     private static UnityTreeNode.Directory findOrCreateDirectoryNode(UnityTreeNode parent, Path relativePathFromParent) {
 
+        @SuppressWarnings("unchecked")
         Enumeration<TreeNode> kids = parent.children();
         while (kids.hasMoreElements()) {
             Object nextKid = kids.nextElement();

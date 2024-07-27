@@ -26,6 +26,10 @@ This is a Java program requiring Java 8 or higher.
 * Right-click to copy name, size, or GUID
 * History.ini saves the last directory used
 
+Alternatively, it can extract everything from the command line using the `--extract-all` command
+```
+java -jar UnityPackageViewer.x.x.x.jar path/to/file.unitypackage --extract-all
+```
 
 # Disclaimers
 

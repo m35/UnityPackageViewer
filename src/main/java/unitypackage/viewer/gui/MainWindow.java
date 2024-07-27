@@ -471,7 +471,7 @@ public class MainWindow extends JFrame {
         UnityAsset asset = assetNode.getAsset();
         String assetFileName = asset.getFileName();
 
-        Path outputFile = guiModel.getCurrentUnitypackageFile().toPath().getParent().resolve(assetFileName);
+        Path outputFile = guiModel.getCurrentUnitypackage().toPath().getParent().resolve(assetFileName);
         boolean exists = Files.exists(outputFile);
         if (exists) {
             int dialogResult = JOptionPane.showConfirmDialog(null,
