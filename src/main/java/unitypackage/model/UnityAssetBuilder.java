@@ -20,7 +20,6 @@ package unitypackage.model;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,13 +33,14 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 /**
  * Collects information about the files inside one directory in the .unitypackage tar file.
+ * Each directory in the .unitypackage tar file represents one asset file or directory that appears in Unity.
  */
 class UnityAssetBuilder {
 
-    private static final boolean STRICT = false;
+    private static final boolean STRICT_DIRECTORY_GUID = false;
 
     /**
-     * The directory name, which is also the GUID of the asset.
+     * The directory name, which is also usually the GUID of the asset.
      */
     private final String guidBaseDirectory;
 
@@ -128,8 +128,8 @@ class UnityAssetBuilder {
         }
     }
 
-    public void addFileFoundInDirectory(String directoryGuidName, String fileName, TarArchiveEntry tarEntry,
-                                        TarArchiveInputStream tarInputStream) throws IOException {
+    final public void addFileFoundInDirectory(String directoryGuidName, String fileName, TarArchiveEntry tarEntry,
+                                              TarArchiveInputStream tarInputStream) throws IOException {
 
         assertGuidMatchesDirectoryName(directoryGuidName);
 
@@ -142,9 +142,9 @@ class UnityAssetBuilder {
             case "asset.meta":
                 asset_meta_guid = findGuidIn_asset_meta_File(tarEntry, tarInputStream);
                 if (!asset_meta_guid.equals(guidBaseDirectory)) {
-                    // Usually the directory guid matches the guid in the asset.meta file, but not always
-                    String s = "Corrupted .unitypackage? directory guid" + " " + guidBaseDirectory + " != " + "asset.meta guid " + asset_meta_guid;
-                    if (STRICT) {
+                    // Usually the directory guid matches the guid in the asset.meta file, but not always it seems
+                    String s = "[WARN] Corrupted .unitypackage? directory guid " + guidBaseDirectory + " != asset.meta guid " + asset_meta_guid;
+                    if (STRICT_DIRECTORY_GUID) {
                         throw new RuntimeException(s);
                     } else {
                         System.out.println(s);
@@ -157,8 +157,11 @@ class UnityAssetBuilder {
             case "preview.png":
                 _preview = ImageIO.read(tarInputStream);
                 break;
+            case "metaData":
+                System.out.println("[WARN] Found metaData file \"" + tarEntry.getName() + "\"");
+                break;
             default:
-                throw new RuntimeException("File name not recognized " + tarEntry.getName());
+                throw new RuntimeException("[ERROR] File name not recognized in tar file \"" + tarEntry.getName() + "\"");
         }
     }
 
@@ -189,7 +192,7 @@ class UnityAssetBuilder {
         if (lines.size() == 2 && "00".equals(lines.get(1))) {
             // Sometimes there's a second line with "00"?
         } else if (lines.size() != 1) {
-            throw new RuntimeException(tarEntry.getName() + ": File expected to have 1 line, but found " + lines.size() + " lines: " + lines);
+            System.out.println("[WARN] \"" + tarEntry.getName() + ": File expected to have 1 line, but found " + lines.size() + " lines: " + lines);
         }
 
         return lines.get(0);

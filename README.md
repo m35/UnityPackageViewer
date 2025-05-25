@@ -41,14 +41,14 @@ I didn't read any specification (assuming there is one). There could certainly b
 # The `.unitypackage` file format
 
 A `.unitypackage` is just a compressed TAR archive.
-Inside it contains several root directories.
-Each directory name is a GUID.
+Inside it contains several root directories (in most cases).
+Each directory name is a GUID (in most cases).
 
 ![](.github/tar-directories.png?raw=true)
 
 
 Inside each of them is the contents of the asset with that GUID.
-Specifically, each GUID directory contains some of these 4 files.
+Specifically, each GUID directory contains some of these 4 files (among others).
 
 ![](.github/tar-directory-contents.png?raw=true)
 
@@ -70,15 +70,14 @@ As shown in this tool:
 
 # Existing open source tools I found
 
-### https://gist.github.com/yasirkula/dfc43134fbfefb820d0adbc5d7c25fb3
+https://gist.github.com/yasirkula/dfc43134fbfefb820d0adbc5d7c25fb3 A very nice Unity script to explore `.unitypackage`s
 
-A very nice Unity script to explore `.unitypackages`.
+https://github.com/Switch-9867/UnitypackgeExtractor C# command-line tool
 
-### https://github.com/Switch-9867/UnitypackgeExtractor
+https://github.com/ntrf/UnityUnpack Haxe command-line tool
 
-C# command-line tool.
+https://github.com/Cobertos/unitypackage_extractor Python command-line tool. Its associated pypi package at https://pypi.org/project/unitypackage-extractor/
 
-### https://github.com/Cobertos/unitypackage_extractor
+https://github.com/FatihBAKIR/UnityPacker C# "Create unitypackages without unity, from command line"
 
-Python command-line tool. Its associated pypi package at https://pypi.org/project/unitypackage-extractor/
-
+https://github.com/ngyewch/UnityPackager Java library and command line tools to manipulate .unitypackage files. 

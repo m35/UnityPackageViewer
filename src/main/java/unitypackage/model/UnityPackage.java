@@ -88,7 +88,7 @@ public class UnityPackage {
 
                 if (isDirectory) {
                     if (rawPathParent != null) {
-                        throw new RuntimeException("Found nested directory " + rawFilePathString);
+                        throw new RuntimeException("Found nested directory \"" + rawFilePathString + "\"");
                     }
                     guidDirectory = rawPath.toString();
                     fileName = null;
@@ -104,7 +104,7 @@ public class UnityPackage {
                         // For now ignore it
                         continue;
                     } else {
-                        throw new RuntimeException("Found nested directory " + rawFilePathString);
+                        throw new RuntimeException("Found nested directory \"" + rawFilePathString + "\"");
                     }
                 }
 

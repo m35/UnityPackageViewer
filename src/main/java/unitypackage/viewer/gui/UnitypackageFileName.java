@@ -24,11 +24,13 @@ import javax.swing.filechooser.FileFilter;
 public class UnitypackageFileName {
 
     public static boolean isUnitypackage(File file) {
-        return file.isFile() && isUnitypackage(file.getName());
+        return file.isFile() && hasUnitypackageExtension(file.getName());
     }
 
-    public static boolean isUnitypackage(String fileName) {
-        return fileName.toLowerCase().endsWith(".unitypackage");
+    public static boolean hasUnitypackageExtension(String fileName) {
+        final String lowerCase = fileName.toLowerCase();
+        return lowerCase.endsWith(".unitypackage") ||
+               lowerCase.endsWith(".gz");
     }
 
     public static class UnitypackageFileFilter extends FileFilter {

@@ -173,7 +173,7 @@ public abstract class UnityTreeNode extends DefaultMutableTreeNode implements Co
             } else {
                 // I've seen some .unitypackage where directories get their own GUID and associated data.
                 // I've also seen some where directories have no GUID, but are implied to exist by the asset paths.
-                sb.append(" <i><font color=#ffaaaa>{missing directory .meta}</font></i>");
+                sb.append(" <i><font color=#ffaaaa>{missing directory asset.meta}</font></i>");
             }
 
             sb.append("</html>");
@@ -243,8 +243,15 @@ public abstract class UnityTreeNode extends DefaultMutableTreeNode implements Co
          */
         @Override
         public String toString() {
-            String s = String.format("<html>%s <font color=#bbbbbb>(%,d bytes) <i>{%s}</i> %s</font></html>",
-                                     getAssetName(), getAssetSize(), getGuid(), getDateModified());
+            String guid = getGuid();
+            if (guid == null) {
+                guid = "<font color=#ffaaaa>{missing asset.meta}</font>";
+            } else {
+                guid = "{"+guid+"}";
+            }
+
+            String s = String.format("<html>%s <font color=#bbbbbb>(%,d bytes) <i>%s</i> %s</font></html>",
+                                     getAssetName(), getAssetSize(), guid, getDateModified());
             return s;
         }
 

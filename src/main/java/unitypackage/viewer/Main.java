@@ -31,12 +31,11 @@ import unitypackage.model.UnityArchiveInputStream;
 import unitypackage.model.UnityAsset;
 import unitypackage.model.UnityPackage;
 import unitypackage.viewer.gui.MainWindow;
-import unitypackage.viewer.gui.UnitypackageFileName;
 
 public class Main {
 
     private static final String VERSION_PROPERTY_FILE = "app.properties";
-    public static String DEVELOPMENT_VERSION = "(development)";
+    private static final String DEVELOPMENT_VERSION = "(development)";
     public static String VERSION = DEVELOPMENT_VERSION;
 
     private static final String EXTRACT_ALL_COMMAND = "--extract-all";
@@ -92,9 +91,6 @@ public class Main {
 
     private static void extractAll(String fileToOpen) throws IOException {
         File file = new File(fileToOpen);
-        if (!UnitypackageFileName.isUnitypackage(file)) {
-            System.out.println("File \""+fileToOpen+"\" doesn't have a normal unitypackage file name.");
-        }
 
         UnityPackage unityPackage = new UnityPackage(file);
         try (UnityArchiveInputStream unityIS = unityPackage.getUnityArchiveInputStream()) {

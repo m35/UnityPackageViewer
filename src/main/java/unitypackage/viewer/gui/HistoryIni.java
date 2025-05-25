@@ -18,17 +18,16 @@
 
 package unitypackage.viewer.gui;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Just stores the last .unitypackage file that was opened.
@@ -42,7 +41,8 @@ public class HistoryIni {
         try (PrintStream p = new PrintStream(new FileOutputStream(INI_FILE))) {
             p.println(file.toString());
         } catch (FileNotFoundException ex) {
-            System.out.println("Unable to save " + INI_FILE);
+            System.out.println("[ERROR] Unable to save " + INI_FILE);
+            ex.printStackTrace(System.out);
         }
     }
 
@@ -59,14 +59,10 @@ public class HistoryIni {
 
     private static List<String> getLastFiles() {
         try {
-            List<String> text = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(INI_FILE), StandardCharsets.UTF_8))
-                    .lines()
-                    .collect(Collectors.toList());
-            return text;
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-            return new ArrayList<>();
+            return Files.readAllLines(Paths.get(INI_FILE), StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            ex.printStackTrace(System.out);
+            return Collections.emptyList();
         }
     }
 

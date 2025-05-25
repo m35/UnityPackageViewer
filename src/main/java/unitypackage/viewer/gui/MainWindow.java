@@ -76,13 +76,13 @@ public class MainWindow extends JFrame {
                 List<File> droppedFiles = (List<File>)evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                 if (droppedFiles.size() == 1) {
                     File f = droppedFiles.get(0);
-                    if (UnitypackageFileName.isUnitypackage(f)) {
+                    if (f.isFile()) {
                         openFile(f);
                     } else {
-                        System.out.println("Weird file name " + droppedFiles);
+                        System.out.println("File \""+f+"\" is not a file.");
                     }
                 } else {
-                    System.out.println("Weird # of files " + droppedFiles);
+                    System.out.println("Only drop 1 file instead of "+droppedFiles.size()+": " + droppedFiles);
                 }
             } catch (UnsupportedFlavorException | IOException ex) {
                 ex.printStackTrace();
@@ -150,8 +150,10 @@ public class MainWindow extends JFrame {
 
         if (fileToOpen != null) {
             File file = new File(fileToOpen);
-            if (UnitypackageFileName.isUnitypackage(file)) {
+            if (file.isFile()) {
                 openFile(file);
+            } else {
+                System.out.println("File \""+fileToOpen+"\" is not a file.");
             }
         }
     }

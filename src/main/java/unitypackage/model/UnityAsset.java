@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 
 /**
- * An asset as it would appear in the tree of stuff you see when you import a .unitypackage into unity.
+ * An asset as it would appear in the tree of stuff you see when you import a .unitypackage into Unity.
  * This could be a directory or a file.
  */
 public class UnityAsset {
@@ -51,6 +51,9 @@ public class UnityAsset {
         return getFileNameAsPath().toString();
     }
 
+    /**
+     * Returns -1 if the asset is not a file.
+     */
     public long getSize() {
         return source.getAsset_fileSize();
     }
@@ -63,10 +66,17 @@ public class UnityAsset {
         return source.getGuidBaseDirectory();
     }
 
+    /**
+     * May be null.
+     */
     public BufferedImage getPreview() {
         return source.getPreview();
     }
 
+    /**
+     * In the .unitypackage, the originating directory does not contain a file named "asset",
+     * which probably means it represents a directory (in practice this seems to be the case).
+     */
     public boolean isProbablyDirectory() {
         return source.getRawPathTo_asset_file() == null;
     }
