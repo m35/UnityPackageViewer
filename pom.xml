@@ -12,7 +12,7 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+        <!-- Only dependency is Apache Commons Compress to read .tar files -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
@@ -21,18 +21,35 @@
     </dependencies>
 
     <build>
+
+        <!-- Just put everything in the .jar so it can be distributed as a single file -->
         <resources>
+            <!-- Default resources location -->
             <resource><directory>src/main/resources</directory></resource>
+
+            <!-- Include the source code in the .jar -->
             <resource><directory>src/main/java</directory></resource>
+
+            <!--
+            Include files in src/main/misc/ in the .jar, but also filter them
+            (primarily to put the app version as a property for the app to use)
+            -->
             <resource>
                 <directory>src/main/misc</directory>
                 <filtering>true</filtering>
             </resource>
+
+            <!-- Include the licence file in the .jar -->
             <resource>
                 <directory>.</directory>
                 <includes><include>LICENSE.txt</include></includes>
             </resource>
         </resources>
+
+        <!--
+        Use the Maven Shade plugin to strip out all unused classes
+        and turn everything into a single fat jar.
+        -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -48,7 +65,10 @@
                             <finalName>UnityPackageViewer-${project.version}</finalName>
                             <minimizeJar>true</minimizeJar>
 
-                            <!-- Choose my MANIFEST.MF as the winner -->
+                            <!--
+                            Apache Compress .jar also has its own MANIFEST.MF file.
+                            Choose my MANIFEST.MF as the winner
+                            -->
                             <filters>
                                 <filter>
                                     <artifact>${project.groupId}:${project.artifactId}</artifact>
@@ -65,8 +85,11 @@
                             </filters>
 
                             <transformers>
+                                <!--Prevents license duplication -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                                <!-- Prepares merged NOTICE -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
+                                <!--Set the main class in the MANIFEST -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>unitypackage.viewer.Main</mainClass>
                                 </transformer>
